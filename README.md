@@ -16,17 +16,27 @@
 
 ---
 
-## ⚡ Hızlı Başlangıç (Sıfır Kurulum)
+## ⚡ Kurulum ve Çalıştırma
 
-1. Tarayıcınızda [Instagram](https://www.instagram.com) hesabınıza giriş yapın.
-2. Klavyenizden **F12** tuşuna basarak **Geliştirici Konsolunu (Console)** açın.
-3. Aşağıdaki tek satırlık kodu konsola yapıştırıp **Enter**'a basın:
+> ⚠️ **Önemli Not (Instagram Güvenlik Duvarı - Failed to fetch Çözümü):**  
+> Instagram, sayfası açıkken F12 konsolundan dış web sitelerine (`github.com`, `raw.githubusercontent.com` vb.) `fetch()` ile harici ağ bağlantısı kurulmasını CSP (Content Security Policy) ile engeller. Bu yüzden aşağıdaki 2 güvenli yöntemden birini kullanın:
 
-```javascript
-fetch("https://raw.githubusercontent.com/codumtr/instacockpit/main/instacockpit.js").then(r=>r.text()).then(eval)
-```
+### 🌟 1. Yöntem: Tampermonkey ile Tek Tıkla Kur (En Kolay & Kalıcı)
+Her defasında F12 konsolu açmak istemiyorsanız:
+1. Tarayıcınıza [Tampermonkey](https://www.tampermonkey.net/) eklentisini kurun.
+2. [**instacockpit.user.js**](https://raw.githubusercontent.com/codumtr/instacockpit/main/instacockpit.user.js) bağlantısına tıklayın ve çıkan ekranda **"Kur" (Install)** butonuna basın.
+3. [Instagram](https://www.instagram.com)'a girdiğinizde kokpit otomatik olarak ekranın sağında hazır açılacaktır!
 
-*(İsteğe bağlı: [Tampermonkey Userscript](instacockpit.user.js) olarak kurup her sayfa yenilendiğinde otomatik çalışmasını da sağlayabilirsiniz).*
+---
+
+### 💻 2. Yöntem: F12 Konsoluna Doğrudan Kod Yapıştırma (Sıfır Kurulum)
+Eklenti kurmadan doğrudan F12 ile çalıştırmak için:
+
+1. **Kodu Alın:**
+   - [**codum.tr/instacockpit**](https://codum.tr/instacockpit) adresine gidin ve **"📋 F12 Kodunun Tamamını Kopyala"** butonuna tıklayın.  
+   *(Veya bu depodaki [`instacockpit.js`](instacockpit.js) dosyasını açıp sağ üstteki **"Copy raw file"** butonuna basın).*
+2. [Instagram](https://www.instagram.com)'da klavyenizden **F12** tuşuna basıp **Konsol (Console)** sekmesine geçin.
+3. `Ctrl + V` ile kopyaladığınız kodu yapıştırıp **Enter**'a basın. Kokpit anında açılacaktır!
 
 ---
 
