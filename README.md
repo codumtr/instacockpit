@@ -1,11 +1,9 @@
-# 🚀 CODUM InstaCockpit (v1.0.0 Pro)
-
 <p align="center">
-  <img src="screenshots/dock-rail.png" alt="CODUM InstaCockpit Dock" width="550">
+  <img src="screenshots/cover.png" alt="CODUM InstaCockpit" width="100%">
 </p>
 
 <p align="center">
-  <b>Instagram İçin Modern Glassmorphism DOM Otomasyon & Analiz Kokpiti</b><br>
+  <b>Instagram İçin Yeni Nesil Glassmorphism DOM Otomasyon & Analiz Kokpiti</b><br>
   <i>Eklenti indirme yok, şifre vermek yok, ban riski sıfır. Klavyenizden F12 tuşuna basın ve arkanıza yaslanın.</i>
 </p>
 
@@ -22,7 +20,7 @@
 
 1. Tarayıcınızda [Instagram](https://www.instagram.com) hesabınıza giriş yapın.
 2. Klavyenizden **F12** tuşuna basarak **Geliştirici Konsolunu (Console)** açın.
-3. Aşağıdaki tek satırlık kodu yapıştırıp **Enter**'a basın:
+3. Aşağıdaki tek satırlık kodu konsola yapıştırıp **Enter**'a basın:
 
 ```javascript
 fetch("https://raw.githubusercontent.com/codumtr/instacockpit/main/instacockpit.js").then(r=>r.text()).then(eval)
@@ -32,42 +30,36 @@ fetch("https://raw.githubusercontent.com/codumtr/instacockpit/main/instacockpit.
 
 ---
 
-## ✨ Temel Yetenekler & Özellikler
+## 📸 Ekran Görüntüleri & Panel Yetenekleri
 
-### 1. 👥 Akıllı Takip Motoru (Smart Follow Engine)
-<img src="screenshots/follow-engine.png" alt="Akıllı Takip" width="500">
+| 👥 Akıllı Takip Motoru | 🚪 Takipten Çıkma & Beyaz Liste |
+| :---: | :---: |
+| <img src="screenshots/follow-engine.png" alt="Akıllı Takip" width="380"> | <img src="screenshots/unfollow-engine.png" alt="Takipten Çıkma" width="380"> |
+| **Cinsiyet & Spam Korumalı Organik Büyüme** | **Geri Takip Etmeyenleri Ayıklama & Koruma Listesi** |
 
-- **Cinsiyet Filtresi:** Kadın veya Erkek profil tespitiyle hedef kitlenizi organik olarak takip eder.
-- **Spam & +18 Koruması:** Şüpheli kelimeleri ve bot hesapları otomatik atlar.
-- **Gizli / Açık Hesap Ayrımı:** İsteğe bağlı sadece açık veya sadece gizli hesapları hedefler.
+| ⚡ Reels Beğeni & Kaydırma | 👻 Hayalet Modu (Ghost Suite) |
+| :---: | :---: |
+| <img src="screenshots/reels-like-engine.png" alt="Reels Otopilot" width="380"> | <img src="screenshots/ghost-mode.png" alt="Hayalet Modu" width="380"> |
+| **İzle, Beğen, Kaydır & Canlı Sayaç** | **Gizli Hikaye İzleme & 'Görüldü'süz DM** |
 
-### 2. 🚪 Takipten Çıkma & Beyaz Liste (Smart Unfollow)
-<img src="screenshots/unfollow-engine.png" alt="Takipten Çıkma" width="500">
+<br>
 
-- **Geri Takip Etmeyenleri Ayıklama:** Sizi takip etmeyenleri anında tespit eder.
-- **Beyaz Liste (Whitelist):** Yakın arkadaşlarınızı ve korumak istediğiniz hesapları asla takipten çıkarmaz.
-
-### 3. ⚡ Reels Beğeni & Otomatik Kaydırma (Reels Autopilot)
-<img src="screenshots/reels-like-engine.png" alt="Reels Motoru" width="500">
-
-- Reels videolarını insan hızında izler, kalp atar, teyit alır ve otomatik olarak sonrakine geçer.
-- Sağdaki dock üzerinden **tek tıkla pencere açmadan anında durdurma** ve canlı sayaç.
-
-### 4. 👻 Hayalet Modu (Ghost Suite)
-<img src="screenshots/ghost-mode.png" alt="Hayalet Modu" width="500">
-
-- **Gizli Hikaye İzleme:** Kullanıcı adınız hikayeyi görenler listesine ASLA düşmez.
-- **Gizli DM Okuma:** Karşı tarafa 'Görüldü' işareti göndermeden mesajları okuyun.
+<p align="center">
+  <b>🎛️ Kompakt Sürükle-Bırak Dock Kontrol Paneli</b><br>
+  <br>
+  <img src="screenshots/dock-rail.png" alt="Dock Rail" width="150"><br>
+  <sub><i>Sayfanın sağ tarafına oturan, istenilen yere sürüklenebilen ve canlı işlem sayacı içeren kontrol rayı.</i></sub>
+</p>
 
 ---
 
 ## 🏎️ 5 Kademeli İnsansı Hız Ayarı
 
-Instagram'ın algoritma sınırlarına takılmamak için 5 farklı hız profili sunulur:
+Instagram'ın algoritma sınırlarına takılmamak ve spam korumasını aşmak için 5 farklı hız profili:
 
 | Kademe | Hız Adı | Aralık (Gecikme) | Tavsiye Edilen Kullanım |
-| :--- | :--- | :--- | :--- |
-| **1** | 🛡️ **Ultra Güvenli** | 8.0 - 15.0 sn | Yeni açılmış hesaplar ve sıfır risk |
+| :---: | :--- | :--- | :--- |
+| **1** | 🛡️ **Ultra Güvenli** | 8.0 - 15.0 sn | Yeni hesaplar ve sıfır risk |
 | **2** | 🐢 **Yavaş (Önerilen)** | 5.0 - 9.0 sn | Günlük organik hesap büyütme |
 | **3** | ⚖️ **Dengeli** | 3.5 - 6.5 sn | Standart hesaplar için ideal tempo |
 | **4** | ⚡ **Hızlı** | 2.0 - 4.0 sn | Acil temizlik ve toplu etkileşim |
@@ -77,9 +69,9 @@ Instagram'ın algoritma sınırlarına takılmamak için 5 farklı hız profili 
 
 ## 🔒 Güvenlik & Gizlilik Politikası
 
-- **Şifre İstemez:** Instagram kullanıcı adı veya şifrenizi asla talep etmez.
-- **Yerel DOM Çalışması:** Tüm işlemler doğrudan sizin kendi açık sekmenizdeki tarayıcı DOM'u üzerinde çalışır.
-- **Sıfır Sunucu Kaydı:** Verileriniz, oturum çerezleriniz veya hesap bilgileriniz hiçbir harici sunucuya iletilmez.
+- **Şifresiz Mimari:** Instagram kullanıcı adı veya şifrenizi asla talep etmez.
+- **Yerel DOM:** Tüm işlemler doğrudan sizin açık sekmenizdeki tarayıcı belleğinde çalışır.
+- **Sıfır Sunucu Kaydı:** Çerezleriniz veya hesap bilgileriniz hiçbir dış sunucuya gönderilmez.
 
 ---
 
