@@ -1637,64 +1637,134 @@ if (typeof globalThis !== 'undefined') {
       if (stalled>=5) this.log('Beğenilebilir hikâye bulunamadı; görev durduruldu.','warning');
     }
 
+    async ensureCommentsDrawerOpen() {
+      // Yorum linkleri halihazırda sayfada varsa zaten açıktır
+      if (document.querySelector('a[href*="/c/"]')) return true;
+
+      // 1. Reels veya Gönderi üzerindeki yorum butonunu ara
+      const allButtons = Array.from(document.querySelectorAll('button, div[role="button"]')).filter(b => !b.closest('#codum-instagram-dock'));
+      for (const btn of allButtons) {
+        const label = (btn.getAttribute('aria-label') || '').toLowerCase();
+        const svg = btn.querySelector('svg');
+        const svgLabel = (svg?.getAttribute('aria-label') || svg?.querySelector('title')?.textContent || '').toLowerCase();
+        if ((label.includes('yorum') || label.includes('comment') || svgLabel.includes('yorum') || svgLabel.includes('comment')) &&
+            !label.includes('paylaş') && !label.includes('share') && !label.includes('kaydet') && !label.includes('save') && !label.includes('kapat') && !label.includes('close')) {
+          this.log('💬 Yorum çekmecesi kapalıydı, otomatik açılıyor...', 'info');
+          btn.click();
+          await this.safeDelay(1800);
+          return true;
+        }
+      }
+
+      // 2. Sayfadaki yorum SVG'lerinden butonu bul
+      const commentSvgs = Array.from(document.querySelectorAll('svg')).filter(svg => {
+        if (svg.closest('#codum-instagram-dock')) return false;
+        const l = (svg.getAttribute('aria-label') || svg.querySelector('title')?.textContent || '').toLowerCase();
+        return (l.includes('yorum') || l.includes('comment')) && !l.includes('paylaş') && !l.includes('share') && !l.includes('kaydet') && !l.includes('save');
+      });
+      for (const svg of commentSvgs) {
+        const btn = svg.closest('button, div[role="button"]');
+        if (btn && !btn.closest('#codum-instagram-dock')) {
+          this.log('💬 Yorum çekmecesi kapalıydı, otomatik açılıyor...', 'info');
+          btn.click();
+          await this.safeDelay(1800);
+          return true;
+        }
+      }
+      return false;
+    }
+
     findCommentToLike(seen = new Set()) {
-      const scope=document.querySelector('[role="dialog"]') || document.querySelector('main');
+      const scope = document.querySelector('[role="dialog"]') ||
+                    document.querySelector('div[aria-label*="orum" i], section[aria-label*="orum" i], div[aria-label*="omment" i]') ||
+                    document.querySelector('main') ||
+                    document.body;
       if (!scope) return null;
       for (const link of scope.querySelectorAll('a[href*="/c/"]')) {
-        const match=(link.getAttribute('href')||'').match(/\/c\/(\d+)/);
+        const match = (link.getAttribute('href') || '').match(/\/c\/(\d+)/);
         if (!match || seen.has(match[1])) continue;
-        let row=link.closest('li') || link.parentElement;
-        const listItem=link.closest('li');
-        let depth=0;
+        let row = link.closest('li') || link.parentElement;
+        const listItem = link.closest('li');
+        let depth = 0;
         while (row && row !== scope) {
-          if (++depth>4 || ['ARTICLE','MAIN','SECTION'].includes(row.tagName) || row.querySelector('video')) break;
-          const ids=new Set([...row.querySelectorAll('a[href*="/c/"]')].map(a=>(a.getAttribute('href')||'').match(/\/c\/(\d+)/)?.[1]).filter(Boolean));
+          if (++depth > 4 || ['ARTICLE', 'MAIN', 'SECTION'].includes(row.tagName) || row.querySelector('video')) break;
+          const ids = new Set([...row.querySelectorAll('a[href*="/c/"]')].map(a => (a.getAttribute('href') || '').match(/\/c\/(\d+)/)?.[1]).filter(Boolean));
           // Never climb into a container holding more than this one comment.
-          if (ids.size>1) break;
-          const heart=row.querySelector('svg[aria-label="Like"],svg[aria-label="Beğen"]');
-          const liked=Boolean(row.querySelector('svg[aria-label="Unlike"],svg[aria-label="Beğenmekten vazgeç"]'));
-          const rect=row.getBoundingClientRect();
-          if (rect.width>0 && rect.height>0 && rect.bottom>0 && rect.top<innerHeight && (heart||liked)) {
-            return {key:match[1],row,scope,button:heart?.closest('button,[role="button"]'),liked};
+          if (ids.size > 1) break;
+          let heart = row.querySelector('svg[aria-label="Like"],svg[aria-label="Beğen"],svg[aria-label="like"],svg[aria-label="beğen"]');
+          let liked = Boolean(row.querySelector('svg[aria-label="Unlike"],svg[aria-label="Beğenmekten vazgeç"],svg[aria-label="unlike"],svg[aria-label="beğenmekten vazgeç"]'));
+          if (!heart && !liked) {
+            const svgs = row.querySelectorAll('svg');
+            for (const s of svgs) {
+              const l = (s.getAttribute('aria-label') || s.querySelector('title')?.textContent || '').toLowerCase();
+              if (l.includes('vazgeç') || l.includes('vazgec') || l.includes('unlike')) { liked = true; break; }
+              if (l === 'beğen' || l === 'begen' || l === 'like') { heart = s; break; }
+            }
+          }
+          const rect = row.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight && (heart || liked)) {
+            return { key: match[1], row, scope, button: heart?.closest('button,[role="button"]') || heart?.parentElement, liked };
           }
           if (listItem) break;
-          row=row.parentElement;
+          row = row.parentElement;
         }
       }
       return null;
     }
 
     async startCommentLikeRunner(options = {}) {
-      this.isRunning=true;this.currentTask='Yorum Beğenme';
-      const maxCount=Math.max(1,Math.min(250,Number(options.maxLikeCount)||20));
-      this.stats={processed:0,success:0,skipped:0,failed:0,targetTotal:maxCount};
-      const seen=new Set();let stalled=0;
-      const startPath=location.pathname;
-      while (this.isRunning && this.stats.success<maxCount && stalled<5) {
+      this.isRunning = true;
+      this.currentTask = 'Yorum Beğenme';
+      const maxCount = Math.max(1, Math.min(250, Number(options.maxLikeCount) || 20));
+      this.stats = { processed: 0, success: 0, skipped: 0, failed: 0, targetTotal: maxCount };
+      const seen = new Set();
+      let stalled = 0;
+      const startPath = location.pathname;
+
+      // Çekmece kapalıysa otomatik açmayı dene
+      await this.ensureCommentsDrawerOpen();
+
+      while (this.isRunning && this.stats.success < maxCount && stalled < 5) {
         this.assertActive();
-        if (location.pathname!==startPath) throw new Error('Gönderi değiştiği için yorum beğenisi durduruldu.');
-        const comment=this.findCommentToLike(seen);
+        if (location.pathname !== startPath) throw new Error('Gönderi değiştiği için yorum beğenisi durduruldu.');
+        let comment = this.findCommentToLike(seen);
+        if (!comment && stalled === 0) {
+          // Açılmamış veya yüklenmemişse bir kez daha açmayı dene
+          await this.ensureCommentsDrawerOpen();
+          comment = this.findCommentToLike(seen);
+        }
         if (!comment) {
-          stalled++;this.updateStatus('Açık yorum listesi taranıyor ('+stalled+'/5)...');
-          const scope=document.querySelector('[role="dialog"]') || document.querySelector('main');
-          let scroller=scope && [...scope.querySelectorAll('ul,div')].find(el=>el.scrollHeight>el.clientHeight+16 && /auto|scroll/.test(getComputedStyle(el).overflowY));
-          if (scroller) scroller.scrollBy({top:Math.max(200,scroller.clientHeight*0.7),behavior:'smooth'});
-          await this.safeDelay(1500);continue;
+          stalled++;
+          this.updateStatus('Açık yorum listesi taranıyor (' + stalled + '/5)...');
+          const scope = document.querySelector('[role="dialog"]') ||
+                        document.querySelector('div[aria-label*="orum" i], section[aria-label*="orum" i], div[aria-label*="omment" i]') ||
+                        document.querySelector('main');
+          let scroller = scope && [...scope.querySelectorAll('ul,div')].find(el => el.scrollHeight > el.clientHeight + 16 && /auto|scroll/.test(getComputedStyle(el).overflowY));
+          if (scroller) scroller.scrollBy({ top: Math.max(200, scroller.clientHeight * 0.7), behavior: 'smooth' });
+          await this.safeDelay(1500);
+          continue;
         }
         if (!comment.liked) {
           if (!comment.button) throw new Error('Yorumun beğeni düğmesi bulunamadı.');
-          await this.reserveAction('like');this.assertActive();
-          if (location.pathname!==startPath || this.findCommentToLike(seen)?.key!==comment.key) continue;
-          comment.button.click();await this.confirmLike(()=>this.findCommentToLike(seen),comment.key);
+          await this.reserveAction('like');
+          this.assertActive();
+          if (location.pathname !== startPath || this.findCommentToLike(seen)?.key !== comment.key) continue;
+          comment.button.click();
+          await this.confirmLike(() => this.findCommentToLike(seen), comment.key);
           this.stats.success++;
-          await chrome.runtime.sendMessage({type:'UPDATE_STATS',accountId:this.taskAccount,metric:'like'});
-          this.log('Yorum beğenildi ('+this.stats.success+'/'+maxCount+').','success');
-        } else this.stats.skipped++;
-        seen.add(comment.key);this.stats.processed++;stalled=0;this.updateStatus();
-        if (this.stats.success>=maxCount) break;
-        await this.safeDelay(Math.max(3,Number(options.speedSec)||10)*1000);
+          await chrome.runtime.sendMessage({ type: 'UPDATE_STATS', accountId: this.taskAccount, metric: 'like' });
+          this.log('Yorum beğenildi (' + this.stats.success + '/' + maxCount + ').', 'success');
+        } else {
+          this.stats.skipped++;
+        }
+        seen.add(comment.key);
+        this.stats.processed++;
+        stalled = 0;
+        this.updateStatus();
+        if (this.stats.success >= maxCount) break;
+        await this.safeDelay(Math.max(3, Number(options.speedSec) || 10) * 1000);
       }
-      if (stalled>=5) this.log('Yeni ve kimliği doğrulanabilir yorum bulunamadı. Yorum listesini açıp yükleyin; başka kalp düğmelerine tıklanmadı.','warning');
+      if (stalled >= 5) this.log('Yeni ve kimliği doğrulanabilir yorum bulunamadı. Yorum listesini açıp yükleyin; başka kalp düğmelerine tıklanmadı.', 'warning');
     }
 
     async startReelsAutoLikeRunner(options = {}) {
@@ -2199,6 +2269,11 @@ if (typeof globalThis !== 'undefined') {
     dockContainer.id = 'codum-instagram-dock';
     dockContainer.className = 'codum-dock-container';
     dockContainer.setAttribute('data-corner', 'top-right');
+
+      // Instagram'ın dış tıklama (outside-click) dinleyicisinin yorum ve diyalog pencerelerini kapatmasını engelle
+      ['mousedown', 'pointerdown', 'click', 'touchstart'].forEach(evt => {
+        dockContainer.addEventListener(evt, (e) => e.stopPropagation());
+      });
 
     // HTML İskeleti (Onaylanan 1. Tasarım + Açılır Kapanır Master Knob)
     dockContainer.innerHTML = `
@@ -3218,6 +3293,13 @@ if (typeof globalThis !== 'undefined') {
       btnRunGenericLike?.addEventListener('click', () => {
         if (engine.isRunning) return;
         const kind = document.getElementById('postLikeTargetType')?.value || 'posts';
+        if (kind === 'posts' && window.location.pathname.match(/\/(?:reels?)\//)) {
+          engine.log('⚠️ Reels sayfasındasınız. Reels videolarını beğenmek için üstteki [⚡ Reels] sekmesini, yorumları beğenmek için [Beğeni Türü: Gönderi Yorumları] seçin.', 'warning');
+          btnRunGenericLike.disabled = false;
+          btnRunGenericLike.textContent = '▶ Beğeniyi Başlat';
+          btnRunGenericLike.style.opacity = '1';
+          return;
+        }
         const speed = Number(document.getElementById('postLikeSpeedSec')?.value) || 8;
         const max = Number(document.getElementById('postLikeMaxCount')?.value) || 30;
 
